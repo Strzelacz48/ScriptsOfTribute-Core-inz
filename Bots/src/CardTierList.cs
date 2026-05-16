@@ -166,14 +166,6 @@ public class CardTierList
 
     public static TierEnum GetCardTier(string cardName)
     {
-        try
-        {
-            return Array.Find(CardTierArray, x => x.Name == cardName).Tier;
-        }
-        catch
-        {
-            return TierEnum.UNKNOWN;
-        }
-        
+        return Array.Find(CardTierArray, x => x.Name == cardName)?.Tier ?? TierEnum.UNKNOWN;
     }
 }

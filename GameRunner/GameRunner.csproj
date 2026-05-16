@@ -10,6 +10,10 @@
     <ItemGroup>
       <ProjectReference Include="..\Engine\TalesOfTribute.csproj" />
       <ProjectReference Include="..\gRPC\gRPC.csproj" />
+      <ProjectReference Include="..\Bots\Bots.csproj">
+        <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+        <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+      </ProjectReference>
     </ItemGroup>
 
 	<ItemGroup>
@@ -22,11 +26,9 @@
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Update="Bots.dll">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		<Link>Bots\Bots.dll</Link>
-      </None>
-    </ItemGroup>
+    <Target Name="CopyBotsToOutput" AfterTargets="Build">
+      <Copy SourceFiles="$(MSBuildThisFileDirectory)..\Bots\bin\$(Configuration)\netstandard2.1\Bots.dll"
+            DestinationFolder="$(OutputPath)Bots\" />
+    </Target>
 
 </Project>
