@@ -9,6 +9,7 @@ namespace Bots;
 public class MaxPrestigeBot : AI
 {
     private string patronLogPath = "patronsMaxPrestigeBot.txt";
+    private static readonly object _fileLock = new();
     private Apriori apriori = new Apriori();
     private int support = 4;
     private double confidence = 0.3;
@@ -101,7 +102,10 @@ public class MaxPrestigeBot : AI
         Log("Game ended : (");
         if (state.Winner == myID)
         {
-            File.AppendAllText(patronLogPath, patrons + System.Environment.NewLine);
+            lock (_fileLock)
+            {
+                File.AppendAllText(patronLogPath, patrons + Environment.NewLine);
+            }
         }
         startOfGame = true;
     }

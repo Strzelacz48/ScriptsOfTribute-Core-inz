@@ -354,7 +354,7 @@ public class MCTSBot : AI
     Node? actNode;
     bool startOfTurn;
     TimeSpan usedTimeInTurn = TimeSpan.FromSeconds(0);
-    TimeSpan timeForMoveComputation = TimeSpan.FromSeconds(0.3);
+    TimeSpan timeForMoveComputation = TimeSpan.FromSeconds(0.05);
     TimeSpan TurnTimeout = TimeSpan.FromSeconds(29.9);
     Move endTurnMove = Move.EndTurn();
     Move move;
@@ -367,6 +367,7 @@ public class MCTSBot : AI
     private string patrons;
     private bool startOfGame = true;
     private readonly SeededRandom rng = new(botSeed);
+    private static readonly object _fileLock = new();
 
     public MCTSBot()
     {
@@ -524,7 +525,10 @@ public class MCTSBot : AI
         this.PrepareForGame();
         if (state.Winner == myID)
         {
-            File.AppendAllText(patronLogPath, patrons + System.Environment.NewLine);
+            lock (_fileLock)
+            {
+                File.AppendAllText(patronLogPath, patrons + Environment.NewLine);
+            }
         }
     }
 }
