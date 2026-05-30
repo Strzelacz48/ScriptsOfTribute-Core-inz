@@ -8,11 +8,7 @@ using ScriptsOfTribute.Serializers;
 
 namespace Bots;
 
-/// <summary>
-/// Wraps MCTSBot and records (state, action, outcome) tuples to a JSONL file for NN training.
 /// Use as: dotnet run --project GameRunner -- DataCollectorBot MaxPrestigeBot -n 5000 -t 4
-/// Output: training_data.jsonl (one JSON object per line, one line per move decision)
-/// </summary>
 public class DataCollectorBot : AI
 {
     private readonly AI _inner = new MCTSBot();
@@ -22,6 +18,10 @@ public class DataCollectorBot : AI
     private int _turnIndex;
     private int _moveIndex;
     private static readonly object _writeLock = new();
+    private static int _gamesCompleted = 0;
+    private static int _gamesWon = 0;
+    private static readonly System.Diagnostics.Stopwatch _sw = System.Diagnostics.Stopwatch.StartNew();
+    private const int ProgressEvery = 10;
 
     public override void PregamePrepare()
     {
@@ -67,6 +67,19 @@ public class DataCollectorBot : AI
             using var writer = new StreamWriter(_outputPath, append: true, Encoding.UTF8);
             foreach (var r in _records)
                 writer.WriteLine(r.ToString(Formatting.None));
+        }
+
+        int completed = Interlocked.Increment(ref _gamesCompleted);
+        if (won == 1) Interlocked.Increment(ref _gamesWon);
+
+        if (completed % ProgressEvery == 0)
+        {
+            double winRate = (double)_gamesWon / completed * 100;
+            double elapsed = _sw.Elapsed.TotalSeconds;
+            double gamesPerSec = completed / elapsed;
+            // \r returns cursor to line start without newline — overwrites previous update in place.
+            // Trailing spaces wipe leftover characters if the new line is shorter than the previous one.
+            Console.Write($"\r[{completed} games | win {winRate:F1}% | {gamesPerSec:F1} g/s | {elapsed:F0}s]      ");
         }
 
         _inner.GameEnd(endState, finalBoardState);

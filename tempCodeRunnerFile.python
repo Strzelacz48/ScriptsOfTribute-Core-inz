@@ -1,0 +1,25 @@
+class Solution:
+    def minFallingPathSum(self, matrix: List[List[int]]) -> int:
+        n = len(matrix)
+        dp = [[float(inf)] * n] * n
+        result = float(inf)
+        for j in range(n):
+            dp[0][j] = matrix[0][j]
+        for i in range(1, n):
+            for j in range(n):
+                a,b,c = float(inf),float(inf),float(inf)
+                if (j == 0):
+                    b = matrix[i][j] + dp[i-1][j]
+                    c = matrix[i][j] + dp[i-1][j+1]
+                elif (j == n-1):
+                    a = matrix[i][j] + dp[i-1][j-1]
+                    b = matrix[i][j] + dp[i-1][j]
+                else:
+                    a = matrix[i][j] + dp[i-1][j-1]
+                    b = matrix[i][j] + dp[i-1][j]
+                    c = matrix[i][j] + dp[i-1][j+1]
+                dp[i][j] = min(a,b,c)
+
+                if(i == n-1) and (dp[i][j] < result):
+                    result = dp[i][j]
+        return result
